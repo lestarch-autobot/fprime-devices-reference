@@ -213,6 +213,7 @@ def test_decode_l2_11_caption_is_real_scene(plan, tmp_path, monkeypatch):
     """The L2-11 sidecar caption names the real-scene priority download, not the test-pattern default."""
     monkeypatch.chdir(tmp_path)
     ctx = make_ctx(plan, tmp_path, test_id="L2-11")
+    ctx.artifacts_dir = tmp_path / "arts"
     _dp(ctx, "SunCamRef_sunCamMgr_Image_0001.fdp", product(150, 3, 1, 1, 64, 48, 48, priority=7))
     holds, seen, _refs, _u = H(plan, "decode_image_in_window")(ctx, **dict(ARGS_L7, out="L2-11-preview-priority.png"), priority=7)
     assert holds, seen
