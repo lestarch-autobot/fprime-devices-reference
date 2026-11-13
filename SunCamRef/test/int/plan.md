@@ -6,7 +6,7 @@
 - Bench: Raspberry Pi 5 `devin` (aarch64, Debian), KissCAM V2 bench unit powered on, FTDI USB-RS422 cable FTAQMGVF → /dev/ttyUSB0; foreign /dev/ttyACM1-3 never touched; no software power control (the camera's USB power port cannot be switched; human power cycle in L8-1 only).
 - Camera counters (RXV, RXF, uptime) persist across FSW restarts and runs — never asserted absolutely, only as deltas (mod 256) or ignored.
 - Ground system: fprime-gds (harness skill default); recorder fprime-cli events/channels.
-- Order: L0-1, L0-2, L2-1 … L2-10, L3-1, L5-1, L5-3, L6-1, L6-2, L7-1, L8-1; every `setup` names the state the previous test leaves.
+- Order: L0-1, L0-2, L2-1 … L2-10, L2-11, L3-1, L5-1, L5-3, L6-1, L6-2, L7-1, L8-1; every `setup` names the state the previous test leaves.
 - L8-1 is the one human-in-the-loop test (`run_in: ["rfr"]`, `human_step`): deferred in dry runs and rehearsal, executed only in the run-for-record with the human step prompted by the runner.
 - Out of scope: WRITE_REGISTER (excluded by the request), camera power sequencing, HD FULL download on the bench (1920 lines, 4 × L2-5), datasheet features the unit does not implement (Memory Status, 80×60 preview, camera-side parameter errors — SDD §Hardware notes), downlink of products (DpCatalog/FileDownlink are deployment services).
 
@@ -158,7 +158,7 @@ Setup:     READY, SD, exposure 672 (after L2-9). An HD capture writes all four s
 Procedure: MARK(2100); bracket (2 suncam samples); sunCamMgr.CAMERA_MODE_PRM_SET(HD); wait(ExposureReadback, 5 s); sunCamMgr.CAPTURE(SLOT_0, ON); wait(CaptureComplete, 20 s); sunCamMgr.DOWNLOAD(SLOT_0, PREVIEW, 0); wait(DownloadComplete, 60 s); sunCamMgr.CAMERA_MODE_PRM_SET(SD); wait(ExposureReadback, 5 s); sunCamMgr.CAPTURE(SLOT_0, OFF); wait(CaptureComplete, 10 s); sunCamMgr.CAPTURE(SLOT_1, OFF); wait(CaptureComplete, 10 s); sunCamMgr.CAPTURE(SLOT_2, OFF); wait(CaptureComplete, 10 s); sunCamMgr.CAPTURE(SLOT_3, OFF); wait(CaptureComplete, 10 s); bracket (2 suncam samples); MARK(2101).
 Window:    Marker(id=2100) … Marker(id=2101)
 Pass rule: named checks declared in the integration test (test_L2_10). metrics: t(event sunCamMgr.DownloadComplete(slot=SLOT_0, imageMode=HD, resolution=PREVIEW, lines=192, bytes=12288)) - t(sunCamMgr.DOWNLOAD sent) <= 40 s (193 exchanges × 72 B ≈ 1.2 s at 11 520 B/s + camera latency (≈ 4 × the L2-4 preview); HD FULL (1920 lines ≈ 4 × L2-5) is not run on the bench).
-Evidence:  One four-quadrant product tagged HD from DOWNLOAD(SLOT_0, PREVIEW) after an HD test-pattern capture; decoded 128×96 PNG with the quadrants placed by slot tag; camera back in SD with live frames re-captured in all four slots.
+Evidence:  One four-quadrant product tagged HD from DOWNLOAD(SLOT_0, PREVIEW, 0) after an HD test-pattern capture; decoded 128×96 PNG with the quadrants placed by slot tag; camera back in SD with live frames re-captured in all four slots.
 Planted faults:none
 
 ID:        L2-11

@@ -56,7 +56,7 @@ def read_wrong_register(test_id, command_name, args):
 
 
 @planted_fault("preview_instead_of_full", applies_to=["L2-5"], cls="stimulus", kind="rewrite",
-               mechanism="DOWNLOAD(SLOT_0, FULL) rewritten to PREVIEW: 48 lines / 3072 bytes arrive where 480 / 307200 are expected (H3)",
+               mechanism="DOWNLOAD(SLOT_0, FULL, 0) rewritten to DOWNLOAD(SLOT_0, PREVIEW, 0) (priority argument passed through): 48 lines / 3072 bytes arrive where 480 / 307200 are expected (H3)",
                fails={"L2-5": [
                    "event sunCamMgr.DownloadStarted(slot=SLOT_0, imageMode=SD, resolution=FULL, lines=480) count == 1",
                    "event sunCamMgr.DownloadComplete(slot=SLOT_0, imageMode=SD, resolution=FULL, lines=480, bytes=307200) count == 1",
