@@ -1,11 +1,11 @@
 # SunCamRef system test (plan QUAL-SUNCAM, KissCam.SunCamMgr)
 
-Harness: [fprime-testing-harness](https://github.com/LeStarch/fprime-testing-harness) v0.1.20 (`fth`).
+Harness: [fprime-testing-harness](https://github.com/LeStarch/fprime-testing-harness) v0.1.21 (`fth`).
 
-Pin (campaign suncam-v2, DOWNLOAD priority argument): tag `v0.1.20` = tag object `98614ca0c0a5194ff21367b5e75e93bb65f212c2` on commit
-`2877471007ca3747ccb1fee42c733b68e5bfa250`, fetched from the autobot fork
+Pin (campaign suncam-v2, DOWNLOAD priority argument): tag `v0.1.21` = tag object `d615f5ec9776f087d9dd0995522ee2a0d6ee9725` on commit
+`1189871f77b84efb22e411daab19df3795acfedd`, fetched from the autobot fork
 `https://github.com/lestarch-autobot/fprime-testing-harness` until it lands upstream:
-`git -C harness fetch --tags https://github.com/lestarch-autobot/fprime-testing-harness && git -C harness checkout --detach v0.1.20 && pip install -e "harness[test]"`.
+`git -C harness fetch --tags https://github.com/lestarch-autobot/fprime-testing-harness && git -C harness checkout --detach v0.1.21 && pip install -e "harness[test]"`; check the pin with `git -C harness describe --tags` and `pip show fprime-testing-harness` (0.1.21).
 v0.1.3 = window-slice fix (dispatchers that log `OpCodeDispatched` before the handler event); v0.1.4 = human-step, run-for-record-only tests
 (`human_step` / `run_in`, verdict DEFERRED); v0.1.5 = positional `human step` procedure line → `bench.human_step()` and
 `fth rfr --defer-human-steps RULING`. The deployment logs the same string at start-up (`HARNESS_DESCRIBE`, read by `fth manifest`).
@@ -21,7 +21,7 @@ v0.1.14 = harness fixes found by the dry-12 dev-campaign audit (no stimulus chan
 v0.1.15 = run-start markers are read as the plan's `markers.event`/`markers.arg` (`cmdDisp.NoOpStringReceived`; the auditor only knew `*.Marker` and refused RfR r1178a5f at row 5 although the markers were in the record); `fth dev-campaign` records the dry record's audit steps in `evidence.json` (`pure.audit`) and, like `fth deliver`, fails on any FAILED step or on a missing runner-vs-replay agreement.
 v0.1.16 = the plan-aware marker lookup is the only form everywhere (`fth unseal` included — it had still used the legacy `*.Marker` suffix and refused RfR r2b1d714 at row 7); the manifest embeds `plan.markers`; `fth dev-campaign` runs the seed-free dev-chain gate (draw → run-start markers → unseal → package over the dry record) recorded in `evidence.json`, and `fth deliver` refuses evidence without a passing gate; `--note` records the voided runs for record.
 
-v0.1.17 = dev-evidence html twins shipped and gated; dev-chain row 8 packages with the bundle. v0.1.18 = MARK steps align to the plan's marker command; offline quick-look re-render (`fth rerender-ql`). v0.1.19 = one procedure-step grammar (bare names are commands), PROCEDURE/RECORD MISMATCH review flags, `fth verify-stimulus` (run by `verify-plan --tests`), superseded re-renders. v0.1.20 = `verify-plan --sdd` finds the requirements table under a numbered heading (`## 2. Requirements`, SunCamMgr SDD since fprime-devices #7).
+v0.1.17 = dev-evidence html twins shipped and gated; dev-chain row 8 packages with the bundle. v0.1.18 = MARK steps align to the plan's marker command; offline quick-look re-render (`fth rerender-ql`). v0.1.19 = one procedure-step grammar (bare names are commands), PROCEDURE/RECORD MISMATCH review flags, `fth verify-stimulus` (run by `verify-plan --tests`), superseded re-renders. v0.1.20 = `verify-plan --sdd` finds the requirements table under a numbered heading (`## 2. Requirements`, SunCamMgr SDD since fprime-devices #7). v0.1.21 = package version in `pyproject.toml` matches the tag (it had stayed at 0.1.19 through v0.1.20, so `pip show` misreported the pin).
 
 | File | Role |
 | --- | --- |

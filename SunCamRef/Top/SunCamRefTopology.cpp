@@ -34,7 +34,7 @@ enum TopologyConstants {
 };
 
 //! Pinned fprime-testing-harness (test-process contract §8): `git describe` of the harness checkout
-static const char HARNESS_DESCRIBE[] = "fprime-testing-harness v0.1.20";
+static const char HARNESS_DESCRIBE[] = "fprime-testing-harness v0.1.21";
 
 Svc::BufferManager::BufferBins uartBufferBins;
 

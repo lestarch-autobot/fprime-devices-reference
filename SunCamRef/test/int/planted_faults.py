@@ -216,6 +216,8 @@ CAPTIONS = {
     "L2-5-full.png": ("Real scene, SD FULL 640×480, test pattern OFF — raw Bayer GR, 8-bit, shown as greyscale (demosaiced copy "
                       "beside it, no white balance). The sun camera looks at an unlit bench with no bright source at the printed "
                       "exposure; the frame is dark by design — see the pixel range and histogram."),
+    "L2-11-preview-priority.png": ("Real scene, SD PREVIEW 64×48, test pattern OFF (slot 3 re-captured live in L2-10), downloaded "
+                                    "with commanded priority 7 — raw Bayer GR, 8-bit, shown as greyscale; dark bench scene by design."),
 }
 PATTERN_CAPTION = "Camera test pattern (ramp KAT, secondary evidence; raw 8-bit shown as greyscale)"
 RGB_CAPTION = "Bilinear demosaic of the raw Bayer GR mosaic (AR0130, Rev 1.3 §6.4) → RGB, no white balance, no gamma"

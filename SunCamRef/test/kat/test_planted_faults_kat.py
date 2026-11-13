@@ -314,10 +314,11 @@ def F(plan, name):
     ("expect_wrong_exposure_push", "L2-6", "sunCamMgr.EXPOSURE_PRM_SET", [300], [301]),
     ("read_wrong_register", "L2-8", "sunCamMgr.READ_REGISTER", [12306], [12304]),
     ("preview_instead_of_full", "L2-5", "sunCamMgr.DOWNLOAD", ["SLOT_1", "FULL", "0"], ["SLOT_1", "PREVIEW", "0"]),
+    ("preview_instead_of_full", "L2-5", "sunCamMgr.DOWNLOAD", ["SLOT_1", "FULL", "5"], ["SLOT_1", "PREVIEW", "5"]),
 ])
 def test_rewrite_faults(plan, fault, test_id, cmd, args, out):
     assert F(plan, fault)(test_id, cmd, args) == out
-    assert F(plan, fault)(test_id, cmd, [672] if len(args) == 1 else ["SLOT_1", "PREVIEW"]) is None  # other args untouched
+    assert F(plan, fault)(test_id, cmd, [672] if len(args) == 1 else ["SLOT_1", "PREVIEW", "0"]) is None  # other args untouched
     assert F(plan, fault)("L2-2", cmd, args) is None  # other tests untouched
     assert F(plan, fault)(test_id, "sunCamMgr.SETUP_CAMERA", []) is None
 
@@ -326,7 +327,7 @@ def test_insert_fault_sleep_before_final(plan):
     out = F(plan, "sleep_before_final")("L7-1", "sunCamMgr.CAPTURE", ["SLOT_4", "ON"])
     assert out == [("sunCamMgr.SLEEP", []), ("sunCamMgr.CAPTURE", ["SLOT_4", "ON"])]
     assert F(plan, "sleep_before_final")("L2-2", "sunCamMgr.CAPTURE", ["SLOT_1", "OFF"]) is None
-    assert F(plan, "sleep_before_final")("L7-1", "sunCamMgr.DOWNLOAD", ["SLOT_4", "PREVIEW"]) is None
+    assert F(plan, "sleep_before_final")("L7-1", "sunCamMgr.DOWNLOAD", ["SLOT_4", "PREVIEW", "0"]) is None
 
 
 def test_parse_product_real_bench_container(plan):
@@ -335,6 +336,7 @@ def test_parse_product_real_bench_container(plan):
     data = (Path(__file__).parent / "fixtures" / "Dp_536883200_1794262030_00092119.fdp").read_bytes()
     parsed = H(plan, "decode_image_in_window").__globals__["parse_product"](data)
     assert parsed["id"] == BASE_ID
+    assert parsed["priority"] == 10  # KissCamConfig.IMAGE_DP_PRIORITY, Fw/Dp/DpContainer.hpp PRIORITY_OFFSET
     assert parsed["header"] == {"slot": 3, "imageMode": 1, "resolution": 1, "width": 64, "height": 48, "exposure": 672,
                                 "linesExpected": 48}
     assert len(parsed["lines"]) == 48 and all(len(px) == 64 and s == 3 for s, _, px in parsed["lines"])
