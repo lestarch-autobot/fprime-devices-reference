@@ -11,7 +11,7 @@ Procedure (plan.json, verbatim order):
   sunCamMgr.PING(MCU)
   wait(PingReply, 5 s)
   sunCamMgr.CAPTURE(SLOT_0, OFF)
-  sunCamMgr.DOWNLOAD(SLOT_0, PREVIEW)
+  sunCamMgr.DOWNLOAD(SLOT_0, PREVIEW, 0)
   sunCamMgr.READ_REGISTER(12306)
   sunCamMgr.DOWNLOAD_ABORT
   wait(2 s)
@@ -54,7 +54,7 @@ def test_L6_1(fth_plan, window, check, require, send, bench):
         send("sunCamMgr.PING", ['MCU'])
         bench.wait_event("sunCamMgr.PingReply", 5)
         send("sunCamMgr.CAPTURE", ['SLOT_0', 'OFF'], wait_completion=False)  # plan expects the UUT to refuse this command (OpCodeError)
-        send("sunCamMgr.DOWNLOAD", ['SLOT_0', 'PREVIEW'], wait_completion=False)  # plan expects the UUT to refuse this command (OpCodeError)
+        send("sunCamMgr.DOWNLOAD", ['SLOT_0', 'PREVIEW', '0'], wait_completion=False)  # plan expects the UUT to refuse this command (OpCodeError)
         send("sunCamMgr.READ_REGISTER", [12306], wait_completion=False)  # plan expects the UUT to refuse this command (OpCodeError)
         send("sunCamMgr.DOWNLOAD_ABORT", [], wait_completion=False)  # plan expects the UUT to refuse this command (OpCodeError)
         bench.wait(2)

@@ -3,7 +3,7 @@
 Procedure (plan.json, verbatim order):
   MARK(250)
   bracket (2 suncam samples)
-  sunCamMgr.DOWNLOAD(SLOT_0, FULL)
+  sunCamMgr.DOWNLOAD(SLOT_0, FULL, 0)
   wait(DownloadComplete, 120 s)
   bracket (2 suncam samples)
   MARK(251)
@@ -29,6 +29,6 @@ def test_L2_5(fth_plan, window, check, require, send, bench):
         check('event cmdDisp.OpCodeError count == 0')
         check('ABS')
         bracket(bench)
-        send("sunCamMgr.DOWNLOAD", ['SLOT_0', 'FULL'])
+        send("sunCamMgr.DOWNLOAD", ['SLOT_0', 'FULL', '0'])
         bench.wait_event("sunCamMgr.DownloadComplete", 120)
         bracket(bench)

@@ -64,8 +64,8 @@ def read_wrong_register(test_id, command_name, args):
                    "one Image product in window: ImageHeader(slot=0, imageMode=SD, resolution=FULL, width=640, height=480, exposure=672), 480 slot-tagged ImageLine records in order; PNG → dev-evidence/images/L2-5-full.png",
                    "t(event sunCamMgr.DownloadComplete(slot=SLOT_0, imageMode=SD, resolution=FULL, lines=480, bytes=307200)) - t(sunCamMgr.DOWNLOAD sent) <= 90 s"]})
 def preview_instead_of_full(test_id, command_name, args):
-    if test_id == "L2-5" and _is(command_name, "DOWNLOAD") and len(args) == 2 and str(args[1]) == "FULL":
-        return [args[0], "PREVIEW"]
+    if test_id == "L2-5" and _is(command_name, "DOWNLOAD") and len(args) == 3 and str(args[1]) == "FULL":
+        return [args[0], "PREVIEW", args[2]]
     return None
 
 
@@ -206,7 +206,7 @@ def parse_product(data):
             pos += n
         else:
             raise ValueError(f"unknown record id {rid + base:#x} (base {base:#x}) at offset {pos}")
-    return {"id": dp_id, "time_s": sec + usec / 1e6, "header": header, "lines": lines}
+    return {"id": dp_id, "time_s": sec + usec / 1e6, "priority": prio, "header": header, "lines": lines}
 
 
 # Captions the quick-look prints beside each decoded image (fth v0.1.13 artifact sidecar; Captain ruling 2026-11-10:
@@ -297,11 +297,14 @@ def assemble(header, lines):
     return image
 
 
-def check_product(parsed, slot, image_mode, resolution, width, height, lines, exposure=None):
+def check_product(parsed, slot, image_mode, resolution, width, height, lines, exposure=None, priority=None):
     """Compare a parsed product with the expected ImageHeader and line sequence -> (holds, problems).
-    `exposure` (SDD Table 4: the component's last pushed/read-back exposure) is checked only when given."""
+    `exposure` (SDD Table 4: the component's last pushed/read-back exposure) and `priority` (the DpContainer header
+    priority, SDD §4 / REQ-037) are checked only when given."""
     h = parsed["header"]
     problems = []
+    if priority is not None and parsed["priority"] != int(priority):
+        problems.append(f"container priority={parsed['priority']} (expected {priority})")
     if h is None:
         return False, ["no ImageHeader record"]
     want = {"slot": int(slot), "imageMode": {"SD": 1, "ZOOM": 2, "HD": 3}[image_mode], "resolution": {"FULL": 0, "PREVIEW": 1}[resolution],
@@ -351,11 +354,11 @@ def test_pattern_kat(image, width, height):
 
 
 @helper("decode_image_in_window")
-def decode_image_in_window(ctx, slot, image_mode, resolution, width, height, lines, expect, out, exposure=None):
+def decode_image_in_window(ctx, slot, image_mode, resolution, width, height, lines, expect, out, exposure=None, priority=None):
     """Reads record/raw/dp/ (copied from the DpWriter directory by the bench dump recipe), selects the
     Image-container product whose header time lies in [t(START), t(END)] of the window (FSW time);
     FAILs when none or more than one exists; decodes ImageHeader + ImageLine records, checks
-    header fields (incl. imageMode and, when given, exposure), `lines` records in slot/line order (SD/Zoom: the one slot; HD: slots 0..3, lines/4 each); expect="pattern_kat" (added at the §7 refresh,
+    header fields (incl. imageMode and, when given, exposure) and, when given, the container priority (REQ-037), `lines` records in slot/line order (SD/Zoom: the one slot; HD: slots 0..3, lines/4 each); expect="pattern_kat" (added at the §7 refresh,
     decision log 10) compares the decoded preview with the pinned test-pattern reference;
     writes dev-evidence/images/<out> (PNG, Bayer as grey)."""
     w = ctx.window
@@ -382,7 +385,7 @@ def decode_image_in_window(ctx, slot, image_mode, resolution, width, height, lin
     if len(in_window) != 1:
         return False, f"{len(in_window)} Image product(s) with header time in [{t0:.3f}, {t1:.3f}] s under raw/dp/ ({[f.name for f, _ in in_window]}; undecodable: {broken})", refs, False
     f, parsed = in_window[0]
-    holds, problems = check_product(parsed, slot, image_mode, resolution, width, height, lines, exposure)
+    holds, problems = check_product(parsed, slot, image_mode, resolution, width, height, lines, exposure, priority)
     refs.append(f"raw/dp/{f.name}")
     seen = f"{f.name}: header {parsed['header']}, {len(parsed['lines'])} ImageLine records"
     if parsed["header"] is not None and parsed["lines"]:
